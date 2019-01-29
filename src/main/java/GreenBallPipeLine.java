@@ -13,7 +13,7 @@ import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
-import edu.wpi.first.vision.VisionPipeline;
+import edu.wpi.first.vision.VisionPipeline;;
 
 /**
 * GreenBallPipeLine class.
@@ -42,14 +42,14 @@ public class GreenBallPipeLine implements VisionPipeline {
 		// Step Blur0:
 		Mat blurInput = source0;
 		BlurType blurType = BlurType.get("Box Blur");
-		double blurRadius = 3.603603603603604;
+		double blurRadius = 0.0;
 		blur(blurInput, blurType, blurRadius, blurOutput);
 
 		// Step HSL_Threshold0:
 		Mat hslThresholdInput = blurOutput;
-		double[] hslThresholdHue = {0.0, 180.0};
-		double[] hslThresholdSaturation = {11.465827338129495, 255.0};
-		double[] hslThresholdLuminance = {0.0, 255.0};
+		double[] hslThresholdHue = {6.474820143884892, 35.63139931740616};
+		double[] hslThresholdSaturation = {43.57014388489208, 135.33276450511946};
+		double[] hslThresholdLuminance = {2.293165467625899, 163.61774744027304};
 		hslThreshold(hslThresholdInput, hslThresholdHue, hslThresholdSaturation, hslThresholdLuminance, hslThresholdOutput);
 
 		// Step CV_erode0:
