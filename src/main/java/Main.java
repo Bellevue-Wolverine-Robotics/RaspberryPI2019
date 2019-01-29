@@ -19,15 +19,19 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+import org.opencv.core.Rect;
+import org.opencv.imgproc.Imgproc;
+
+import edu.wpi.cscore.CvSink;
+import edu.wpi.cscore.CvSource;
 import edu.wpi.cscore.MjpegServer;
 import edu.wpi.cscore.UsbCamera;
 import edu.wpi.cscore.VideoSource;
 import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.vision.VisionPipeline;
 import edu.wpi.first.vision.VisionThread;
-
-import org.opencv.core.Mat;
 
 /*
    JSON format:
@@ -79,7 +83,7 @@ public final class Main {
   public static boolean server;
   public static List<CameraConfig> cameraConfigs = new ArrayList<>();
 
-  private final Object visionlock = new Object();
+  private static final Object visionlock = new Object();
 
   private Main() {
   }
@@ -200,14 +204,6 @@ public final class Main {
     return camera;
   }
 
-  @Override
-  public void copyPipelineOutputs(GreenBallPipeLine pipeline) {
-    synchronized (visionlock) {
-      // Take a snapshot of the pipeline's output because
-      // it may have changed the next time this method is called!
-    }
-  }
-
   /**
    * Main.
    */
@@ -231,15 +227,32 @@ public final class Main {
       ntinst.startClientTeam(team);
     }
 
+    NetworkTable nTable = ntinst.getTable("TestTable");
+
+    NetworkTableEntry centerX = nTable.getEntry("centerX");
+
     // start cameras
     List<VideoSource> cameras = new ArrayList<>();
     for (CameraConfig cameraConfig : cameraConfigs) {
       cameras.add(startCamera(cameraConfig));
     }
 
+    cameras.get(0).setResolution(320, 240);
+
+    CvSink inputStream = CameraServer.getInstance().getVideo();
+    CvSource outputStream = CameraServer.getInstance().putVideo("Contour", 320, 240);
     // start image processing on camera 0 if present
     if (cameras.size() >= 1) {
-      VisionThread visionThread = new VisionThread(cameras.get(0), new GreenBallPipeLine(), this);
+      VisionThread visionThread = new VisionThread(cameras.get(0), new GreenBallPipeLine(), pipeline -> {
+      if (!pipeline.filterContoursOutput().isEmpty()) {
+        Rect r = Imgproc.boundingRect(pipeline.filterContoursOutput().get(0));
+        synchronized (visionlock) {
+          centerX.setDouble(r.x + (r.width / 2));
+        }
+
+      }
+      });
+      visionThread.start();
     }
 
     // loop forever
