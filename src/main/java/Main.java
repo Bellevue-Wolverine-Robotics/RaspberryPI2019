@@ -1,4 +1,4 @@
-package pi949;
+
 /*----------------------------------------------------------------------------*/
 /* Copyright (c) 2018 FIRST. All Rights Reserved.                             */
 /* Open Source Software - may be modified and shared by FRC teams. The code   */
@@ -9,7 +9,7 @@ package pi949;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import javsa.util.ArrayList;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gson.Gson;
@@ -19,9 +19,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-import org.opencv.core.Mat;
-import org.opencv.imgproc.Imgproc;
-
 import edu.wpi.cscore.MjpegServer;
 import edu.wpi.cscore.UsbCamera;
 import edu.wpi.cscore.VideoSource;
@@ -29,6 +26,8 @@ import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.vision.VisionPipeline;
 import edu.wpi.first.vision.VisionThread;
+
+import org.opencv.core.Mat;
 
 /*
    JSON format:
@@ -79,6 +78,8 @@ public final class Main {
   public static int team;
   public static boolean server;
   public static List<CameraConfig> cameraConfigs = new ArrayList<>();
+
+  private final Object visionlock = new Object();
 
   private Main() {
   }
@@ -185,8 +186,6 @@ public final class Main {
     System.out.println("Starting camera '" + config.name + "' on " + config.path);
     CameraServer inst = CameraServer.getInstance();
     UsbCamera camera = new UsbCamera(config.name, config.path);
-    camera.setResolution(320, 240);
-    camera.setFPS(30);
     MjpegServer server = inst.startAutomaticCapture(camera);
 
     Gson gson = new GsonBuilder().create();
@@ -201,15 +200,11 @@ public final class Main {
     return camera;
   }
 
-  /**
-   * Example pipeline.
-   */
-  public static class TempPipeline implements VisionPipeline {
-    public int val;
-
-    @Override
-    public void process(Mat mat) {
-      val += 1;
+  @Override
+  public void copyPipelineOutputs(GreenBallPipeLine pipeline) {
+    synchronized (visionlock) {
+      // Take a snapshot of the pipeline's output because
+      // it may have changed the next time this method is called!
     }
   }
 
@@ -242,20 +237,9 @@ public final class Main {
       cameras.add(startCamera(cameraConfig));
     }
 
-    for (int i)
-    
-
     // start image processing on camera 0 if present
     if (cameras.size() >= 1) {
-      VisionThread visionthread;
-      visionthread = new VisionThread(cameras.get(0), new TempPipeline(), pipeline -> {
-        
-      });
-      visionthread.start();
-      /*
-       * something like this for GRIP: VisionThread visionThread = new
-       * VisionThread(cameras.get(0), new GripPipeline(), pipeline -> { ... });
-       */
+      VisionThread visionThread = new VisionThread(cameras.get(0), new GreenBallPipeLine(), this);
     }
 
     // loop forever
