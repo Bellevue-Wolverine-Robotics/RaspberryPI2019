@@ -19,12 +19,17 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+import org.opencv.core.Rect;
+import org.opencv.imgproc.Imgproc;
+
 import edu.wpi.cscore.CvSink;
 import edu.wpi.cscore.CvSource;
 import edu.wpi.cscore.MjpegServer;
 import edu.wpi.cscore.UsbCamera;
 import edu.wpi.cscore.VideoSource;
 import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.vision.VisionThread;
 
@@ -222,6 +227,10 @@ public final class Main {
       ntinst.startClientTeam(team);
     }
 
+    NetworkTable nTable = ntinst.getTable("TestTable");
+
+    NetworkTableEntry centerX = nTable.getEntry("centerX");
+
     // start cameras
     List<VideoSource> cameras = new ArrayList<>();
     for (CameraConfig cameraConfig : cameraConfigs) {
@@ -235,9 +244,13 @@ public final class Main {
     // start image processing on camera 0 if present
     if (cameras.size() >= 1) {
       VisionThread visionThread = new VisionThread(cameras.get(0), new GreenBallPipeLine(), pipeline -> {
-        synchronized(visionlock) {
-          outputStream.putFrame(pipeline.cvErodeOutput());
+      if (!pipeline.filterContoursOutput().isEmpty()) {
+        Rect r = Imgproc.boundingRect(pipeline.filterContoursOutput().get(0));
+        synchronized (visionlock) {
+          centerX.setDouble(r.x + (r.width / 2));
         }
+
+      }
       });
       visionThread.start();
     }
