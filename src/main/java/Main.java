@@ -257,41 +257,46 @@ public final class Main {
               return (int) (o2.width - o1.width);
             }
 
-        });
-        int[] differences = new int[rects.size() - 1];
-        Rect prevRect = rects.get(0);
-        for (int i = 1; i < rects.size(); i++) {
-          differences[i - 1] = prevRect.width - rects.get(i).width;
-          prevRect = rects.get(i);
-        }
-        int smallest = 0;
-        for (int i = 1; i < differences.length; i++) {
-          if (differences[i] < differences[smallest]) {
-            smallest = i;
+          });
+
+          int[] differences = new int[rects.size() - 1];
+          Rect prevRect = rects.get(0);
+          for (int i = 1; i < rects.size(); i++) {
+            differences[i - 1] = prevRect.width - rects.get(i).width;
+            prevRect = rects.get(i);
+          }
+          int smallest = 0;
+          for (int i = 1; i < differences.length; i++) {
+            if (differences[i] < differences[smallest]) {
+              smallest = i;
+            }
+          }
+          Rect firstTape = rects.get(smallest);
+          Rect secondTape = rects.get(smallest + 1);
+          int width = ((firstTape.x + firstTape.width / 2) + (secondTape.x + secondTape.width / 2)) / 2;
+          String difference = "";
+          for (int i : differences) {
+            difference += i + ", ";
+          }
+          String rectsWidths = "";
+          for (Rect rect : rects) {
+            rectsWidths += rect.width + ", ";
+          }
+          synchronized (visionlock) {
+            // System.out.print("Rects: ");
+            // System.out.println(rectsWidths);
+            // System.out.print("Differences");
+            // System.out.println(difference);
+            System.out.println(width + "px");
+            outputStream.putFrame(pipeline.cvErodeOutput());
+            centerX.setDouble(1284.4 / rects.get(0).width);
           }
         }
-        Rect firstTape = rects.get(smallest);
-        Rect secondTape = rects.get(smallest + 1);
-        int width = ((firstTape.x + firstTape.width / 2) + (secondTape.x + secondTape.width / 2)) / 2;
-        String difference = "";
-        for (int i : differences) {
-          difference += i + ", ";
+        else {
+          synchronized (visionlock) {
+            System.out.println("I didn't get any contours! :(");
+          }
         }
-        String rectsWidths = "";
-        for (Rect rect : rects) {
-          rectsWidths += rect.width + ", ";
-        }
-        synchronized (visionlock) {
-          // System.out.print("Rects: ");
-          // System.out.println(rectsWidths);
-          // System.out.print("Differences");
-          // System.out.println(difference);
-          System.out.println(width + "px");
-          outputStream.putFrame(pipeline.cvErodeOutput());
-          centerX.setDouble(1284.4 / rects.get(0).width);
-        }
-
-      }
       });
       visionThread.start();
     }
