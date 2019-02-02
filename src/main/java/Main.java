@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 import com.google.gson.Gson;
@@ -19,10 +20,10 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+import org.opencv.core.Mat;
 import org.opencv.core.Rect;
 import org.opencv.imgproc.Imgproc;
 
-import edu.wpi.cscore.CvSink;
 import edu.wpi.cscore.CvSource;
 import edu.wpi.cscore.MjpegServer;
 import edu.wpi.cscore.UsbCamera;
@@ -239,15 +240,55 @@ public final class Main {
 
     cameras.get(0).setResolution(320, 240);
 
-    CvSink inputStream = CameraServer.getInstance().getVideo();
     CvSource outputStream = CameraServer.getInstance().putVideo("Contour", 320, 240);
+
     // start image processing on camera 0 if present
     if (cameras.size() >= 1) {
-      VisionThread visionThread = new VisionThread(cameras.get(0), new GreenBallPipeLine(), pipeline -> {
-      if (!pipeline.filterContoursOutput().isEmpty()) {
-        Rect r = Imgproc.boundingRect(pipeline.filterContoursOutput().get(0));
+      VisionThread visionThread = new VisionThread(cameras.get(0), new MakitaGripPipeline(), pipeline -> {
+        if (!pipeline.filterContoursOutput().isEmpty()) {
+          ArrayList<Rect> rects = new ArrayList<Rect>();
+          for (Mat in : pipeline.filterContoursOutput()) {
+            rects.add(Imgproc.boundingRect(in));
+          }
+          rects.sort(new Comparator<Rect>() {
+
+            @Override
+            public int compare(Rect o1, Rect o2) {
+              return (int) (o2.width - o1.width);
+            }
+
+        });
+        int[] differences = new int[rects.size() - 1];
+        Rect prevRect = rects.get(0);
+        for (int i = 1; i < rects.size(); i++) {
+          differences[i - 1] = prevRect.width - rects.get(i).width;
+          prevRect = rects.get(i);
+        }
+        int smallest = 0;
+        for (int i = 1; i < differences.length; i++) {
+          if (differences[i] < differences[smallest]) {
+            smallest = i;
+          }
+        }
+        Rect firstTape = rects.get(smallest);
+        Rect secondTape = rects.get(smallest + 1);
+        int width = ((firstTape.x + firstTape.width / 2) + (secondTape.x + secondTape.width / 2)) / 2;
+        String difference = "";
+        for (int i : differences) {
+          difference += i + ", ";
+        }
+        String rectsWidths = "";
+        for (Rect rect : rects) {
+          rectsWidths += rect.width + ", ";
+        }
         synchronized (visionlock) {
-          centerX.setDouble(r.x + (r.width / 2));
+          // System.out.print("Rects: ");
+          // System.out.println(rectsWidths);
+          // System.out.print("Differences");
+          // System.out.println(difference);
+          System.out.println(width + "px");
+          outputStream.putFrame(pipeline.cvErodeOutput());
+          centerX.setDouble(1284.4 / rects.get(0).width);
         }
 
       }
