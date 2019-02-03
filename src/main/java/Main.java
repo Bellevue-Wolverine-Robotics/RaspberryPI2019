@@ -192,7 +192,6 @@ public final class Main {
     CameraServer inst = CameraServer.getInstance();
     UsbCamera camera = new UsbCamera(config.name, config.path);
     MjpegServer server = inst.startAutomaticCapture(camera);
-
     Gson gson = new GsonBuilder().create();
 
     camera.setConfigJson(gson.toJson(config.config));
@@ -244,8 +243,8 @@ public final class Main {
 
     // start image processing on camera 0 if present
     if (cameras.size() >= 1) {
-      VisionThread visionThread = new VisionThread(cameras.get(0), new MakitaGripPipeline(), pipeline -> {
-        if (!pipeline.filterContoursOutput().isEmpty()) {
+      VisionThread visionThread = new VisionThread(cameras.get(0), new BlueReflectiveTape(), pipeline -> {
+        if (pipeline.filterContoursOutput().size() > 1) {
           ArrayList<Rect> rects = new ArrayList<Rect>();
           for (Mat in : pipeline.filterContoursOutput()) {
             rects.add(Imgproc.boundingRect(in));
@@ -258,7 +257,6 @@ public final class Main {
             }
 
           });
-
           int[] differences = new int[rects.size() - 1];
           Rect prevRect = rects.get(0);
           for (int i = 1; i < rects.size(); i++) {
@@ -274,14 +272,14 @@ public final class Main {
           Rect firstTape = rects.get(smallest);
           Rect secondTape = rects.get(smallest + 1);
           int width = ((firstTape.x + firstTape.width / 2) + (secondTape.x + secondTape.width / 2)) / 2;
-          String difference = "";
-          for (int i : differences) {
-            difference += i + ", ";
-          }
-          String rectsWidths = "";
-          for (Rect rect : rects) {
-            rectsWidths += rect.width + ", ";
-          }
+          // String difference = "";
+          // for (int i : differences) {
+          //   difference += i + ", ";
+          // }
+          // String rectsWidths = "";
+          // for (Rect rect : rects) {
+          //   rectsWidths += rect.width + ", ";
+          // }
           synchronized (visionlock) {
             // System.out.print("Rects: ");
             // System.out.println(rectsWidths);
@@ -294,7 +292,8 @@ public final class Main {
         }
         else {
           synchronized (visionlock) {
-            System.out.println("I didn't get any contours! :(");
+            System.out.println("there were less then 2 contours");
+            outputStream.putFrame(pipeline.cvErodeOutput());
           }
         }
       });
