@@ -20,7 +20,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-import org.opencv.core.Mat;
+import org.opencv.core.MatOfPoint;
 import org.opencv.core.Rect;
 import org.opencv.imgproc.Imgproc;
 
@@ -236,18 +236,20 @@ public final class Main {
     for (CameraConfig cameraConfig : cameraConfigs) {
       cameras.add(startCamera(cameraConfig));
     }
+    int width = 320;
+    int height = 240;
 
-    cameras.get(0).setResolution(320, 240);
+    cameras.get(0).setResolution(width, height);
 
-    CvSource outputStream = CameraServer.getInstance().putVideo("Contour", 320, 240);
+    CvSource outputStream = CameraServer.getInstance().putVideo("HSV Binary", width, height);
 
     // start image processing on camera 0 if present
     if (cameras.size() >= 1) {
       VisionThread visionThread = new VisionThread(cameras.get(0), new BlueReflectiveTape(), pipeline -> {
         if (pipeline.filterContoursOutput().size() > 1) {
           ArrayList<Rect> rects = new ArrayList<Rect>();
-          for (Mat in : pipeline.filterContoursOutput()) {
-            rects.add(Imgproc.boundingRect(in));
+          for (MatOfPoint contour : pipeline.filterContoursOutput()) {
+            rects.add(Imgproc.boundingRect(contour));
           }
           rects.sort(new Comparator<Rect>() {
 
@@ -271,7 +273,8 @@ public final class Main {
           }
           Rect firstTape = rects.get(smallest);
           Rect secondTape = rects.get(smallest + 1);
-          int width = ((firstTape.x + firstTape.width / 2) + (secondTape.x + secondTape.width / 2)) / 2;
+          int widthTarget = (firstTape.x + (firstTape.width / 2)) + (secondTape.x + (secondTape.width / 2)) / 2;
+          int centerTarget = (firstTape.x + (firstTape.width / 2)) + (widthTarget / 2);
           // String difference = "";
           // for (int i : differences) {
           //   difference += i + ", ";
@@ -285,15 +288,16 @@ public final class Main {
             // System.out.println(rectsWidths);
             // System.out.print("Differences");
             // System.out.println(difference);
-            System.out.println(width + "px");
+            //System.out.println(widthTarget + "px");
             outputStream.putFrame(pipeline.cvErodeOutput());
-            centerX.setDouble(1284.4 / rects.get(0).width);
+            centerX.setDouble(centerTarget);
           }
         }
         else {
           synchronized (visionlock) {
             System.out.println("there were less then 2 contours");
             outputStream.putFrame(pipeline.cvErodeOutput());
+            centerX.setDouble(width / 2);
           }
         }
       });
