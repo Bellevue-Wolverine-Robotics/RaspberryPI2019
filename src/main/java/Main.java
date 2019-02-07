@@ -245,7 +245,7 @@ public final class Main {
 
     // start image processing on camera 0 if present
     if (cameras.size() >= 1) {
-      VisionThread visionThread = new VisionThread(cameras.get(0), new BlueReflectiveTape(), pipeline -> {
+      VisionThread visionThread = new VisionThread(cameras.get(0), new GreenReflectiveTape(), pipeline -> {
         if (pipeline.filterContoursOutput().size() > 1) {
           ArrayList<Rect> rects = new ArrayList<Rect>();
           for (MatOfPoint contour : pipeline.filterContoursOutput()) {
@@ -288,15 +288,16 @@ public final class Main {
             // System.out.println(rectsWidths);
             // System.out.print("Differences");
             // System.out.println(difference);
-            //System.out.println(widthTarget + "px");
-            outputStream.putFrame(pipeline.cvErodeOutput());
+            System.out.println(widthTarget + "width px");
+            System.out.println(centerX + "center px");
+            outputStream.putFrame(pipeline.hsvThresholdOutput());
             centerX.setDouble(centerTarget);
           }
         }
         else {
           synchronized (visionlock) {
             System.out.println("there were less then 2 contours");
-            outputStream.putFrame(pipeline.cvErodeOutput());
+            outputStream.putFrame(pipeline.hsvThresholdOutput());
             centerX.setDouble(width / 2);
           }
         }
