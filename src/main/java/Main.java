@@ -230,6 +230,9 @@ public final class Main {
     NetworkTable nTable = ntinst.getTable("TestTable");
 
     NetworkTableEntry centerX = nTable.getEntry("centerX");
+    NetworkTableEntry leftTarget = nTable.getEntry("leftTarget");
+    NetworkTableEntry rightTarget = nTable.getEntry("rightTarget");
+    NetworkTableEntry distanceTarget = nTable.getEntry("distanceTarget");
 
     // start cameras
     List<VideoSource> cameras = new ArrayList<>();
@@ -251,28 +254,28 @@ public final class Main {
           for (MatOfPoint contour : pipeline.filterContoursOutput()) {
             rects.add(Imgproc.boundingRect(contour));
           }
-          rects.sort(new Comparator<Rect>() {
+          // rects.sort(new Comparator<Rect>() {
 
-            @Override
-            public int compare(Rect o1, Rect o2) {
-              return (int) (o2.width - o1.width);
-            }
+          //   @Override
+          //   public int compare(Rect o1, Rect o2) {
+          //     return (int) (o2.width - o1.width);
+          //   }
 
-          });
-          int[] differences = new int[rects.size() - 1];
-          Rect prevRect = rects.get(0);
-          for (int i = 1; i < rects.size(); i++) {
-            differences[i - 1] = prevRect.width - rects.get(i).width;
-            prevRect = rects.get(i);
-          }
-          int smallest = 0;
-          for (int i = 1; i < differences.length; i++) {
-            if (differences[i] < differences[smallest]) {
-              smallest = i;
-            }
-          }
-          Rect firstTape = rects.get(smallest);
-          Rect secondTape = rects.get(smallest + 1);
+          // });
+          // int[] differences = new int[rects.size() - 1];
+          // Rect prevRect = rects.get(0);
+          // for (int i = 1; i < rects.size(); i++) {
+          //   differences[i - 1] = prevRect.width - rects.get(i).width;
+          //   prevRect = rects.get(i);
+          // }
+          // int smallest = 0;
+          // for (int i = 1; i < differences.length; i++) {
+          //   if (differences[i] < differences[smallest]) {
+          //     smallest = i;
+          //   }
+          // }
+          Rect firstTape = rects.get(0);
+          Rect secondTape = rects.get(1);
           int widthTarget = (firstTape.x + (firstTape.width / 2)) + (secondTape.x + (secondTape.width / 2)) / 2;
           int centerTarget = (firstTape.x + (firstTape.width / 2)) + (widthTarget / 2);
           // String difference = "";
@@ -292,6 +295,8 @@ public final class Main {
             System.out.println(centerX + "center px");
             outputStream.putFrame(pipeline.hsvThresholdOutput());
             centerX.setDouble(centerTarget);
+            leftTarget.setDouble(firstTape.x + (firstTape.width / 2));
+            rightTarget.setDouble(secondTape.x + (secondTape.width / 2));
           }
         }
         else {
