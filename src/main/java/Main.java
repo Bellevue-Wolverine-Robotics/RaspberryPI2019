@@ -291,8 +291,10 @@ public final class Main {
             // System.out.println(rectsWidths);
             // System.out.print("Differences");
             // System.out.println(difference);
+            System.out.println("Next frame //////////");
             System.out.println(widthTarget + "width px");
-            System.out.println(centerX + "center px");
+            System.out.println(centerTarget + "center px");
+            System.out.println((9 * 105.55555) / widthTarget + "distance");
             outputStream.putFrame(pipeline.hsvThresholdOutput());
             centerX.setDouble(centerTarget);
             leftTarget.setDouble(firstTape.x + (firstTape.width / 2));
