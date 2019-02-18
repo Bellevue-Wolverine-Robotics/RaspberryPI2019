@@ -237,6 +237,7 @@ public final class Main {
 
     centerX.setDouble(42);
 
+    System.out.println(cameraConfigs.get(0).config);
     // start cameras
     List<VideoSource> cameras = new ArrayList<>();
     for (CameraConfig cameraConfig : cameraConfigs) {
