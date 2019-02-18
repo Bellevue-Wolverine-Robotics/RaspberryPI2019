@@ -40,15 +40,15 @@ public class GreenReflectiveTape implements VisionPipeline {
 		// Step CV_resize0:
 		Mat cvResizeSrc = source0;
 		Size cvResizeDsize = new Size(0, 0);
-		double cvResizeFx = 0.25;
-		double cvResizeFy = 0.25;
+		double cvResizeFx = 1.0;
+		double cvResizeFy = 1.0;
 		int cvResizeInterpolation = Imgproc.INTER_LINEAR;
 		cvResize(cvResizeSrc, cvResizeDsize, cvResizeFx, cvResizeFy, cvResizeInterpolation, cvResizeOutput);
 
 		// Step HSV_Threshold0:
 		Mat hsvThresholdInput = cvResizeOutput;
-		double[] hsvThresholdHue = {72.84172661870504, 100.13651877133107};
-		double[] hsvThresholdSaturation = {77.96762589928058, 191.90273037542661};
+		double[] hsvThresholdHue = {72.84172661870504, 97.06484641638225};
+		double[] hsvThresholdSaturation = {96.31294964028777, 255.0};
 		double[] hsvThresholdValue = {217.85071942446044, 254.73577785235005};
 		hsvThreshold(hsvThresholdInput, hsvThresholdHue, hsvThresholdSaturation, hsvThresholdValue, hsvThresholdOutput);
 
@@ -59,7 +59,7 @@ public class GreenReflectiveTape implements VisionPipeline {
 
 		// Step Filter_Contours0:
 		ArrayList<MatOfPoint> filterContoursContours = findContoursOutput;
-		double filterContoursMinArea = 5.0;
+		double filterContoursMinArea = 0.0;
 		double filterContoursMinPerimeter = 0.0;
 		double filterContoursMinWidth = 0.0;
 		double filterContoursMaxWidth = 1000.0;

@@ -235,6 +235,8 @@ public final class Main {
     NetworkTableEntry rightTarget = nTable.getEntry("rightTarget");
     NetworkTableEntry distanceTarget = nTable.getEntry("distanceTarget");
 
+    centerX.setDouble(42);
+
     // start cameras
     List<VideoSource> cameras = new ArrayList<>();
     for (CameraConfig cameraConfig : cameraConfigs) {
@@ -247,6 +249,11 @@ public final class Main {
 
     CvSource outputStream = CameraServer.getInstance().putVideo("HSV Binary", width, height);
 
+    /*TODO
+    1) Find angle
+    2) filter targets (just steal nrg's code)
+    3) create trajectory by joystick button click, then send trajectory back with network tables*/
+
     // start image processing on camera 0 if present
     if (cameras.size() >= 1) {
       VisionThread visionThread = new VisionThread(cameras.get(0), new GreenReflectiveTape(), pipeline -> {
@@ -255,54 +262,55 @@ public final class Main {
           for (MatOfPoint contour : pipeline.filterContoursOutput()) {
             rects.add(Imgproc.boundingRect(contour));
           }
-          // rects.sort(new Comparator<Rect>() {
+          rects.sort(new Comparator<Rect>() {
 
-          //   @Override
-          //   public int compare(Rect o1, Rect o2) {
-          //     return (int) (o2.width - o1.width);
-          //   }
+            @Override
+            public int compare(Rect o1, Rect o2) {
+              return (int) (o2.x - o1.x);
+            }
 
-          // });
+          });
           // int[] differences = new int[rects.size() - 1];
           // Rect prevRect = rects.get(0);
           // for (int i = 1; i < rects.size(); i++) {
-          //   differences[i - 1] = prevRect.width - rects.get(i).width;
-          //   prevRect = rects.get(i);
+          // differences[i - 1] = prevRect.width - rects.get(i).width;
+          // prevRect = rects.get(i);
           // }
           // int smallest = 0;
           // for (int i = 1; i < differences.length; i++) {
-          //   if (differences[i] < differences[smallest]) {
-          //     smallest = i;
-          //   }
+          // if (differences[i] < differences[smallest]) {
+          // smallest = i;
           // }
-          Rect firstTape = rects.get(0);
-          Rect secondTape = rects.get(1);
-          int widthTarget = (firstTape.x + (firstTape.width / 2)) + (secondTape.x + (secondTape.width / 2)) / 2;
-          int centerTarget = (firstTape.x + (firstTape.width / 2)) + (widthTarget / 2);
+          // }
+          Rect firstTape = rects.get(1);
+          Rect secondTape = rects.get(0);
+          int leftTargetX = firstTape.x + (firstTape.width / 2);
+          int rightTargetX = secondTape.x + (secondTape.width / 2);
+          int widthTarget = rightTargetX - leftTargetX;
+          int centerTarget = leftTargetX + (widthTarget / 2);
+          double distanceFT = (11.0 * ((88.0 * 43.0) / 11.0)) / widthTarget;
           // String difference = "";
           // for (int i : differences) {
-          //   difference += i + ", ";
+          // difference += i + ", ";
           // }
           // String rectsWidths = "";
           // for (Rect rect : rects) {
-          //   rectsWidths += rect.width + ", ";
+          // rectsWidths += rect.width + ", ";
           // }
           synchronized (visionlock) {
-            // System.out.print("Rects: ");
-            // System.out.println(rectsWidths);
-            // System.out.print("Differences");
-            // System.out.println(difference);
-            System.out.println("Next frame //////////");
-            System.out.println(widthTarget + "width px");
-            System.out.println(centerTarget + "center px");
-            System.out.println((9 * 105.55555) / widthTarget + "distance");
+            // System.out.println("Next frame //////////");
+            // System.out.println(widthTarget + "width px");
+            // System.out.println(centerTarget + "center px");
+            // System.out.println(distanceFT + "distance");
             outputStream.putFrame(pipeline.hsvThresholdOutput());
             centerX.setDouble(centerTarget);
-            leftTarget.setDouble(firstTape.x + (firstTape.width / 2));
-            rightTarget.setDouble(secondTape.x + (secondTape.width / 2));
+            leftTarget.setDouble(leftTargetX);
+            rightTarget.setDouble(rightTargetX);
+            distanceTarget.setDouble(distanceFT);
+            // System.out.println(leftTarget.getDouble(0) + "left x");
+            // System.out.println(rightTarget.getDouble(0) + "right x");
           }
-        }
-        else {
+        } else {
           synchronized (visionlock) {
             System.out.println("there were less then 2 contours");
             outputStream.putFrame(pipeline.hsvThresholdOutput());
@@ -313,6 +321,9 @@ public final class Main {
       visionThread.start();
     }
 
+    Thread t = new Thread(() -> {
+
+    t.start();
     // loop forever
     for (;;) {
       try {
