@@ -255,7 +255,15 @@ public final class Main {
     3) create trajectory by joystick button click, then send trajectory back with network tables*/
 
     // start image processing on camera 0 if present
+
+    System.out.println("Number of cameras: " + cameras.size());
+
     if (cameras.size() >= 1) {
+      Thread t = new Thread(() -> {
+      
+        // loop forever
+      });
+      t.start();
       VisionThread visionThread = new VisionThread(cameras.get(0), new GreenReflectiveTape(), pipeline -> {
         if (pipeline.filterContoursOutput().size() > 1) {
           ArrayList<Rect> rects = new ArrayList<Rect>();
@@ -302,29 +310,27 @@ public final class Main {
             // System.out.println(widthTarget + "width px");
             // System.out.println(centerTarget + "center px");
             // System.out.println(distanceFT + "distance");
-            outputStream.putFrame(pipeline.hsvThresholdOutput());
-            centerX.setDouble(centerTarget);
-            leftTarget.setDouble(leftTargetX);
-            rightTarget.setDouble(rightTargetX);
-            distanceTarget.setDouble(distanceFT);
+            // outputStream.putFrame(pipeline.hsvThresholdOutput());
+            // centerX.setDouble(centerTarget);
+            // leftTarget.setDouble(leftTargetX);
+            // rightTarget.setDouble(rightTargetX);
+            // distanceTarget.setDouble(distanceFT);
             // System.out.println(leftTarget.getDouble(0) + "left x");
             // System.out.println(rightTarget.getDouble(0) + "right x");
+            System.out.println("I have at least one camera.")
           }
         } else {
           synchronized (visionlock) {
-            System.out.println("there were less then 2 contours");
-            outputStream.putFrame(pipeline.hsvThresholdOutput());
-            centerX.setDouble(width / 2);
+            System.out.println("I have at least one camera.");
+            // outputStream.putFrame(pipeline.hsvThresholdOutput());
+            // centerX.setDouble(width / 2);
           }
         }
       });
       visionThread.start();
     }
 
-    Thread t = new Thread(() -> {
 
-    t.start();
-    // loop forever
     for (;;) {
       try {
         Thread.sleep(10000);
@@ -332,5 +338,7 @@ public final class Main {
         return;
       }
     }
-  }
+
+  
+}
 }
