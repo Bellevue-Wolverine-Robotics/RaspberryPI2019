@@ -279,25 +279,18 @@ public final class Main {
             }
 
           });
-          // int[] differences = new int[rects.size() - 1];
-          // Rect prevRect = rects.get(0);
-          // for (int i = 1; i < rects.size(); i++) {
-          // differences[i - 1] = prevRect.width - rects.get(i).width;
-          // prevRect = rects.get(i);
-          // }
-          // int smallest = 0;
-          // for (int i = 1; i < differences.length; i++) {
-          // if (differences[i] < differences[smallest]) {
-          // smallest = i;
-          // }
-          // }
+
           Rect firstTape = rects.get(1);
           Rect secondTape = rects.get(0);
           int leftTargetX = firstTape.x + (firstTape.width / 2);
           int rightTargetX = secondTape.x + (secondTape.width / 2);
           int widthTarget = rightTargetX - leftTargetX;
           int centerTarget = leftTargetX + (widthTarget / 2);
-          double distanceFT = (11.0 * ((88.0 * 43.0) / 11.0)) / widthTarget;
+          double distanceToRobotFT = (11.0 * ((88.0 * 43.0) / 11.0)) / widthTarget;
+          double distanceToCenterFT = ((320/2) - centerTarget) * (widthTarget/11);
+          //we are making a right triangle with the robot, the target, and the center of the camera frame. angle is found by dividing distance between target and center of camera frame by distance between robot and center of camera frame, then taking the inverse tan to find the angle. absolute value is taken because we're making a right triangle and triangles need positive side values.
+          double angle = Math.atan(Math.abs((distanceToCenterFT/distanceToRobotFT)));
+          
           // String difference = "";
           // for (int i : differences) {
           // difference += i + ", ";
@@ -310,7 +303,10 @@ public final class Main {
             // System.out.println("Next frame //////////");
             // System.out.println(widthTarget + "width px");
             // System.out.println(centerTarget + "center px");
-            // System.out.println(distanceFT + "distance");
+            System.out.println(distanceToRobotFT + " distance between center and robot");
+            System.out.println(distanceToCenterFT + " distance between target and center");
+            System.out.println(angle + "angle between robot and target");
+            
             // outputStream.putFrame(pipeline.hsvThresholdOutput());
             // centerX.setDouble(centerTarget);
             // leftTarget.setDouble(leftTargetX);
