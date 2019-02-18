@@ -317,7 +317,7 @@ public final class Main {
             // distanceTarget.setDouble(distanceFT);
             // System.out.println(leftTarget.getDouble(0) + "left x");
             // System.out.println(rightTarget.getDouble(0) + "right x");
-            System.out.println("I have at least one camera.")
+            System.out.println("I have at least one camera.");
           }
         } else {
           synchronized (visionlock) {
