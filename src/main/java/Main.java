@@ -287,7 +287,7 @@ public final class Main {
           int widthTarget = rightTargetX - leftTargetX;
           int centerTarget = leftTargetX + (widthTarget / 2);
           double distanceToRobotFT = (11.0 * ((88.0 * 43.0) / 11.0)) / widthTarget;
-          double distanceToCenterFT = ((320/2) - centerTarget) * (widthTarget/11);
+          double distanceToCenterFT = ((320/2) - centerTarget) * (11/widthTarget);
           //we are making a right triangle with the robot, the target, and the center of the camera frame. angle is found by dividing distance between target and center of camera frame by distance between robot and center of camera frame, then taking the inverse tan to find the angle. absolute value is taken because we're making a right triangle and triangles need positive side values.
           double angle = Math.atan(Math.abs((distanceToCenterFT/distanceToRobotFT)));
           
