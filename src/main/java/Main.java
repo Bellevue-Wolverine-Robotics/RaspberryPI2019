@@ -259,36 +259,30 @@ public final class Main {
       VisionThread visionThread = new VisionThread(cameras.get(0), new GreenReflectiveTape(), pipeline -> {
         if (pipeline.filterContoursOutput().size() > 1) {
           ArrayList<Rect> rects = new ArrayList<Rect>();
+          ArrayList<Double> areas = new ArrayList<Double>();
           for (MatOfPoint contour : pipeline.filterContoursOutput()) {
             rects.add(Imgproc.boundingRect(contour));
+            areas.add(Imgproc.contourArea(contour));
           }
-          rects.sort(new Comparator<Rect>() {
+          // rects.sort(new Comparator<Rect>() {
 
-            @Override
-            public int compare(Rect o1, Rect o2) {
-              return (int) (o2.x - o1.x);
+          //   @Override
+          //   public int compare(Rect o1, Rect o2) {
+          //     return (int) (o2.width - o1.width);
+          //   }
+
+          // });
+          ArrayList<Rect> targets = new ArrayList<Rect>();
+          for (int i = 0; i < rects.size(); i++){
+            if (areas.get(i)/rects.get(i).area() > 0.5 & areas.get(i)/rects.get(i).area() < 0.75){
+              targets.add(rects.get(i));
             }
-
-          });
-          // int[] differences = new int[rects.size() - 1];
-          // Rect prevRect = rects.get(0);
-          // for (int i = 1; i < rects.size(); i++) {
-          // differences[i - 1] = prevRect.width - rects.get(i).width;
-          // prevRect = rects.get(i);
-          // }
-          // int smallest = 0;
-          // for (int i = 1; i < differences.length; i++) {
-          // if (differences[i] < differences[smallest]) {
-          // smallest = i;
-          // }
-          // }
-          Rect firstTape = rects.get(1);
-          Rect secondTape = rects.get(0);
-          int leftTargetX = firstTape.x + (firstTape.width / 2);
-          int rightTargetX = secondTape.x + (secondTape.width / 2);
-          int widthTarget = rightTargetX - leftTargetX;
-          int centerTarget = leftTargetX + (widthTarget / 2);
-          double distanceFT = (11.0 * ((88.0 * 43.0) / 11.0)) / widthTarget;
+          }
+          
+          // Rect firstTape = rects.get(smallest);
+          // Rect secondTape = rects.get(smallest + 1);
+          // int widthTarget = (firstTape.x + (firstTape.width / 2)) + (secondTape.x + (secondTape.width / 2)) / 2;
+          // int centerTarget = (firstTape.x + (firstTape.width / 2)) + (widthTarget / 2);
           // String difference = "";
           // for (int i : differences) {
           // difference += i + ", ";
@@ -298,17 +292,15 @@ public final class Main {
           // rectsWidths += rect.width + ", ";
           // }
           synchronized (visionlock) {
-            // System.out.println("Next frame //////////");
-            // System.out.println(widthTarget + "width px");
-            // System.out.println(centerTarget + "center px");
-            // System.out.println(distanceFT + "distance");
+            // System.out.print("Rects: ");
+            // System.out.println(rectsWidths);
+            // System.out.print("Differences");
+            // System.out.println(difference);
+            //System.out.println(widthTarget + "px");
+            System.out.println(rects.size());
+            System.out.println(targets.size());
             outputStream.putFrame(pipeline.hsvThresholdOutput());
-            centerX.setDouble(centerTarget);
-            leftTarget.setDouble(leftTargetX);
-            rightTarget.setDouble(rightTargetX);
-            distanceTarget.setDouble(distanceFT);
-            // System.out.println(leftTarget.getDouble(0) + "left x");
-            // System.out.println(rightTarget.getDouble(0) + "right x");
+            //centerX.setDouble(centerTarget);
           }
         } else {
           synchronized (visionlock) {
@@ -322,7 +314,7 @@ public final class Main {
     }
 
     Thread t = new Thread(() -> {
-
+    });
     t.start();
     // loop forever
     for (;;) {
