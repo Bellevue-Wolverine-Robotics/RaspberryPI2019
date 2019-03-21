@@ -260,10 +260,13 @@ public final class Main {
         if (pipeline.filterContoursOutput().size() > 1) {
           ArrayList<Rect> rects = new ArrayList<Rect>();
           ArrayList<Double> areas = new ArrayList<Double>();
+          ArrayList<Target> targets = new ArrayList<Target>();
           for (MatOfPoint contour : pipeline.filterContoursOutput()) {
             rects.add(Imgproc.boundingRect(contour));
             areas.add(Imgproc.contourArea(contour));
+            targets.add(new Target(contour));
           }
+
           // rects.sort(new Comparator<Rect>() {
 
           //   @Override
@@ -272,12 +275,12 @@ public final class Main {
           //   }
 
           // });
-          ArrayList<Rect> targets = new ArrayList<Rect>();
-          for (int i = 0; i < rects.size(); i++){
-            if (areas.get(i)/rects.get(i).area() > 0.5 & areas.get(i)/rects.get(i).area() < 0.75){
-              targets.add(rects.get(i));
-            }
-          }
+          // ArrayList<Rect> targets = new ArrayList<Rect>();
+          // for (int i = 0; i < rects.size(); i++){
+          //   if (areas.get(i)/rects.get(i).area() > 0.5 && areas.get(i)/rects.get(i).area() < 0.75){
+          //     targets.add(rects.get(i));
+          //   }
+          // }
           
           // Rect firstTape = rects.get(smallest);
           // Rect secondTape = rects.get(smallest + 1);
