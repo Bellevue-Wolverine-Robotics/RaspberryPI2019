@@ -275,7 +275,6 @@ public final class Main {
             areas.add(Imgproc.contourArea(contour));
             targets.add(new Target(contour));
           }
-<<<<<<< HEAD
           rects.sort(new Comparator<Rect>() {
 
             @Override
@@ -296,28 +295,6 @@ public final class Main {
           //we are making a right triangle with the robot, the target, and the center of the camera frame. angle is found by dividing distance between target and center of camera frame by distance between robot and center of camera frame, then taking the inverse tan to find the angle. absolute value is taken because we're making a right triangle and triangles need positive side values.
           double angle = Math.atan(Math.abs((distanceToCenterFT/distanceToRobotFT)));
           
-=======
-
-          // rects.sort(new Comparator<Rect>() {
-
-          //   @Override
-          //   public int compare(Rect o1, Rect o2) {
-          //     return (int) (o2.width - o1.width);
-          //   }
-
-          // });
-          // ArrayList<Rect> targets = new ArrayList<Rect>();
-          // for (int i = 0; i < rects.size(); i++){
-          //   if (areas.get(i)/rects.get(i).area() > 0.5 && areas.get(i)/rects.get(i).area() < 0.75){
-          //     targets.add(rects.get(i));
-          //   }
-          // }
-          
-          // Rect firstTape = rects.get(smallest);
-          // Rect secondTape = rects.get(smallest + 1);
-          // int widthTarget = (firstTape.x + (firstTape.width / 2)) + (secondTape.x + (secondTape.width / 2)) / 2;
-          // int centerTarget = (firstTape.x + (firstTape.width / 2)) + (widthTarget / 2);
->>>>>>> e0776e229a2a3303264773e4146e8777aa64e410
           // String difference = "";
           // for (int i : differences) {
           // difference += i + ", ";
@@ -327,7 +304,6 @@ public final class Main {
           // rectsWidths += rect.width + ", ";
           // }
           synchronized (visionlock) {
-<<<<<<< HEAD
             // System.out.println("Next frame //////////");
             // System.out.println(widthTarget + "width px");
             // System.out.println(centerTarget + "center px");
@@ -343,17 +319,6 @@ public final class Main {
             // System.out.println(leftTarget.getDouble(0) + "left x");
             // System.out.println(rightTarget.getDouble(0) + "right x");
             System.out.println("I have at least one camera.");
-=======
-            // System.out.print("Rects: ");
-            // System.out.println(rectsWidths);
-            // System.out.print("Differences");
-            // System.out.println(difference);
-            //System.out.println(widthTarget + "px");
-            System.out.println(rects.size());
-            System.out.println(targets.size());
-            outputStream.putFrame(pipeline.hsvThresholdOutput());
-            //centerX.setDouble(centerTarget);
->>>>>>> e0776e229a2a3303264773e4146e8777aa64e410
           }
         } else {
           synchronized (visionlock) {
@@ -366,14 +331,6 @@ public final class Main {
       visionThread.start();
     }
 
-<<<<<<< HEAD
-
-=======
-    Thread t = new Thread(() -> {
-    });
-    t.start();
-    // loop forever
->>>>>>> e0776e229a2a3303264773e4146e8777aa64e410
     for (;;) {
       try {
         Thread.sleep(10000);
