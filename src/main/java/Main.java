@@ -267,6 +267,21 @@ public final class Main {
             targets.add(new Target(contour));
           }
 
+          ArrayList<TargetPair> targetPairs = new ArrayList<TargetPair>();
+          if (targets.size() >= 2) {
+            for (int i = 0; i < targets.size() - 1; ++i) {
+              Target current = targets.get(i);
+              if (current.getSide() == Target.Side.LEFT) {
+                Target nextTarget = targets.get(i + 1);
+                if (nextTarget.getSide() == Target.Side.RIGHT) {
+                  TargetPair targetPair = new TargetPair(current, nextTarget);
+                  targetPairs.add(targetPair);
+                  ++i;
+                }
+              }
+            }
+  }
+
           // rects.sort(new Comparator<Rect>() {
 
           //   @Override
