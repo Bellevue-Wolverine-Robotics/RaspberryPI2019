@@ -275,7 +275,6 @@ public final class Main {
             areas.add(Imgproc.contourArea(contour));
             targets.add(new Target(contour));
           }
-<<<<<<< HEAD
 
           ArrayList<TargetPair> targetPairs = new ArrayList<TargetPair>();
           if (targets.size() >= 2) {
@@ -306,7 +305,6 @@ public final class Main {
           //     targets.add(rects.get(i));
           //   }
           // }
-=======
           rects.sort(new Comparator<Rect>() {
 
             @Override
@@ -332,14 +330,13 @@ public final class Main {
           // it must be moved to the left.
           int centerTarget = leftTargetX + (widthTarget / 2);
           double distanceToRobotFT = (11.0 * ((88.0 * 43.0) / 11.0)) / widthTarget;
-          double distanceToCenterFT = ((320/2) - centerTarget ) * (11/widthTarget);
+          double distanceToCenterFT = ((320/2) - centerTarget) * (11/widthTarget);
           // we are making a right triangle with the robot, the target, and the center of the camera frame. 
           // angle is found by dividing distance between target and center of camera frame by distance between 
           // robot and center of camera frame, then taking the inverse tan to find the angle. 
           // absolute value is taken because we're making a right triangle and triangles need positive side values.
           
           double angle = Math.atan(Math.abs((distanceToCenterFT/distanceToRobotFT)));
->>>>>>> d2893c73ad730c6d41f694efbd67dba0493c07b1
           
           // String difference = "";
           // for (int i : differences) {
