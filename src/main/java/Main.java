@@ -275,6 +275,38 @@ public final class Main {
             areas.add(Imgproc.contourArea(contour));
             targets.add(new Target(contour));
           }
+<<<<<<< HEAD
+
+          ArrayList<TargetPair> targetPairs = new ArrayList<TargetPair>();
+          if (targets.size() >= 2) {
+            for (int i = 0; i < targets.size() - 1; ++i) {
+              Target current = targets.get(i);
+              if (current.getSide() == Target.Side.LEFT) {
+                Target nextTarget = targets.get(i + 1);
+                if (nextTarget.getSide() == Target.Side.RIGHT) {
+                  TargetPair targetPair = new TargetPair(current, nextTarget);
+                  targetPairs.add(targetPair);
+                  ++i;
+                }
+              }
+            }
+  }
+
+          // rects.sort(new Comparator<Rect>() {
+
+          //   @Override
+          //   public int compare(Rect o1, Rect o2) {
+          //     return (int) (o2.width - o1.width);
+          //   }
+
+          // });
+          // ArrayList<Rect> targets = new ArrayList<Rect>();
+          // for (int i = 0; i < rects.size(); i++){
+          //   if (areas.get(i)/rects.get(i).area() > 0.5 && areas.get(i)/rects.get(i).area() < 0.75){
+          //     targets.add(rects.get(i));
+          //   }
+          // }
+=======
           rects.sort(new Comparator<Rect>() {
 
             @Override
@@ -307,6 +339,7 @@ public final class Main {
           // absolute value is taken because we're making a right triangle and triangles need positive side values.
           
           double angle = Math.atan(Math.abs((distanceToCenterFT/distanceToRobotFT)));
+>>>>>>> d2893c73ad730c6d41f694efbd67dba0493c07b1
           
           // String difference = "";
           // for (int i : differences) {
