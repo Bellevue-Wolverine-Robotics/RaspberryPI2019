@@ -251,7 +251,7 @@ public final class Main {
     CvSource outputStream = CameraServer.getInstance().putVideo("HSV Binary", width, height);
 
     /*TODO
-    1) Find angle
+
     2) filter targets (just steal nrg's code)
     3) create trajectory by joystick button click, then send trajectory back with network tables*/
 
@@ -284,15 +284,24 @@ public final class Main {
 
           });
 
+          Double FTFromRobotCenter = 0.0;
           Rect firstTape = rects.get(1);
           Rect secondTape = rects.get(0);
           int leftTargetX = firstTape.x + (firstTape.width / 2);
           int rightTargetX = secondTape.x + (secondTape.width / 2);
           int widthTarget = rightTargetX - leftTargetX;
+          Double PixelsFromRobotCenter = (FTFromRobotCenter * (widthTarget/11.0)); //maybe actually do the math on this one, Frankie
+          leftTargetX -= PixelsFromRobotCenter;
+          rightTargetX -= PixelsFromRobotCenter;
+          // the idea here is to account for the camera offset by simply changing the x-coordinates of the left and right targets
+          //so that they represent the coordinates that would be found if the center of the robot was the center of the camera frame
+          // the pixel distance is SUBTRACTED because the coordinates go left to right and the camera offset is to the left,
+          // which would make the target appear farther right than it is. so in order to have the target in the right place, 
+          // it must be moved to the left.
           int centerTarget = leftTargetX + (widthTarget / 2);
           double distanceToRobotFT = (11.0 * ((88.0 * 43.0) / 11.0)) / widthTarget;
-          double distanceToCenterFT = ((320/2) - centerTarget) * (11/widthTarget);
-          //we are making a right triangle with the robot, the target, and the center of the camera frame. 
+          double distanceToCenterFT = ((320/2) - centerTarget ) * (11/widthTarget);
+          // we are making a right triangle with the robot, the target, and the center of the camera frame. 
           // angle is found by dividing distance between target and center of camera frame by distance between 
           // robot and center of camera frame, then taking the inverse tan to find the angle. 
           // absolute value is taken because we're making a right triangle and triangles need positive side values.
