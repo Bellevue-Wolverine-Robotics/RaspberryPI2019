@@ -250,10 +250,12 @@ public final class Main {
 
     CvSource outputStream = CameraServer.getInstance().putVideo("HSV Binary", width, height);
 
-    /*TODO
-
-    2) filter targets (just steal nrg's code)
-    3) create trajectory by joystick button click, then send trajectory back with network tables*/
+    /*
+     * TODO
+     * 
+     * 2) filter targets (just steal nrg's code) 3) create trajectory by joystick
+     * button click, then send trajectory back with network tables
+     */
 
     // start image processing on camera 0 if present
 
@@ -261,7 +263,7 @@ public final class Main {
 
     if (cameras.size() >= 1) {
       Thread t = new Thread(() -> {
-      
+
         // loop forever
       });
       t.start();
@@ -289,21 +291,22 @@ public final class Main {
                 }
               }
             }
-  }
+          }
 
           // rects.sort(new Comparator<Rect>() {
 
-          //   @Override
-          //   public int compare(Rect o1, Rect o2) {
-          //     return (int) (o2.width - o1.width);
-          //   }
+          // @Override
+          // public int compare(Rect o1, Rect o2) {
+          // return (int) (o2.width - o1.width);
+          // }
 
           // });
           // ArrayList<Rect> targets = new ArrayList<Rect>();
           // for (int i = 0; i < rects.size(); i++){
-          //   if (areas.get(i)/rects.get(i).area() > 0.5 && areas.get(i)/rects.get(i).area() < 0.75){
-          //     targets.add(rects.get(i));
-          //   }
+          // if (areas.get(i)/rects.get(i).area() > 0.5 &&
+          // areas.get(i)/rects.get(i).area() < 0.75){
+          // targets.add(rects.get(i));
+          // }
           // }
           rects.sort(new Comparator<Rect>() {
 
@@ -320,24 +323,33 @@ public final class Main {
           int leftTargetX = firstTape.x + (firstTape.width / 2);
           int rightTargetX = secondTape.x + (secondTape.width / 2);
           int widthTarget = rightTargetX - leftTargetX;
-          Double PixelsFromRobotCenter = (FTFromRobotCenter * (widthTarget/11.0)); //maybe actually do the math on this one, Frankie
+          Double PixelsFromRobotCenter = (FTFromRobotCenter * (widthTarget / 11.0)); // maybe actually do the math on
+                                                                                     // this one, Frankie
           leftTargetX -= PixelsFromRobotCenter;
           rightTargetX -= PixelsFromRobotCenter;
-          // the idea here is to account for the camera offset by simply changing the x-coordinates of the left and right targets
-          //so that they represent the coordinates that would be found if the center of the robot was the center of the camera frame
-          // the pixel distance is SUBTRACTED because the coordinates go left to right and the camera offset is to the left,
-          // which would make the target appear farther right than it is. so in order to have the target in the right place, 
+          // the idea here is to account for the camera offset by simply changing the
+          // x-coordinates of the left and right targets
+          // so that they represent the coordinates that would be found if the center of
+          // the robot was the center of the camera frame
+          // the pixel distance is SUBTRACTED because the coordinates go left to right and
+          // the camera offset is to the left,
+          // which would make the target appear farther right than it is. so in order to
+          // have the target in the right place,
           // it must be moved to the left.
           int centerTarget = leftTargetX + (widthTarget / 2);
           double distanceToRobotFT = (11.0 * ((88.0 * 43.0) / 11.0)) / widthTarget;
-          double distanceToCenterFT = ((320/2) - centerTarget) * (11/widthTarget);
-          // we are making a right triangle with the robot, the target, and the center of the camera frame. 
-          // angle is found by dividing distance between target and center of camera frame by distance between 
-          // robot and center of camera frame, then taking the inverse tan to find the angle. 
-          // absolute value is taken because we're making a right triangle and triangles need positive side values.
-          
-          double angle = Math.atan(Math.abs((distanceToCenterFT/distanceToRobotFT)));
-          
+          double distanceToCenterFT = ((320 / 2) - centerTarget) * (11 / widthTarget);
+          // we are making a right triangle with the robot, the target, and the center of
+          // the camera frame.
+          // angle is found by dividing distance between target and center of camera frame
+          // by distance between
+          // robot and center of camera frame, then taking the inverse tan to find the
+          // angle.
+          // absolute value is taken because we're making a right triangle and triangles
+          // need positive side values.
+
+          double angle = Math.atan(Math.abs((distanceToCenterFT / distanceToRobotFT)));
+
           // String difference = "";
           // for (int i : differences) {
           // difference += i + ", ";
@@ -353,7 +365,7 @@ public final class Main {
             System.out.println(distanceToRobotFT + " distance between center and robot");
             System.out.println(distanceToCenterFT + " distance between target and center");
             System.out.println(angle + "angle between robot and target");
-            
+
             // outputStream.putFrame(pipeline.hsvThresholdOutput());
             // centerX.setDouble(centerTarget);
             // leftTarget.setDouble(leftTargetX);
@@ -382,6 +394,5 @@ public final class Main {
       }
     }
 
-  
-}
+  }
 }
