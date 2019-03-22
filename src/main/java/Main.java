@@ -237,6 +237,7 @@ public final class Main {
 
     centerX.setDouble(42);
 
+    System.out.println(cameraConfigs.get(0).config);
     // start cameras
     List<VideoSource> cameras = new ArrayList<>();
     for (CameraConfig cameraConfig : cameraConfigs) {
@@ -250,12 +251,20 @@ public final class Main {
     CvSource outputStream = CameraServer.getInstance().putVideo("HSV Binary", width, height);
 
     /*TODO
-    1) Find angle
+
     2) filter targets (just steal nrg's code)
     3) create trajectory by joystick button click, then send trajectory back with network tables*/
 
     // start image processing on camera 0 if present
+
+    System.out.println("Number of cameras: " + cameras.size());
+
     if (cameras.size() >= 1) {
+      Thread t = new Thread(() -> {
+      
+        // loop forever
+      });
+      t.start();
       VisionThread visionThread = new VisionThread(cameras.get(0), new GreenReflectiveTape(), pipeline -> {
         if (pipeline.filterContoursOutput().size() > 1) {
           ArrayList<Rect> rects = new ArrayList<Rect>();
@@ -266,6 +275,7 @@ public final class Main {
             areas.add(Imgproc.contourArea(contour));
             targets.add(new Target(contour));
           }
+<<<<<<< HEAD
 
           ArrayList<TargetPair> targetPairs = new ArrayList<TargetPair>();
           if (targets.size() >= 2) {
@@ -296,11 +306,41 @@ public final class Main {
           //     targets.add(rects.get(i));
           //   }
           // }
+=======
+          rects.sort(new Comparator<Rect>() {
+
+            @Override
+            public int compare(Rect o1, Rect o2) {
+              return (int) (o2.x - o1.x);
+            }
+
+          });
+
+          Double FTFromRobotCenter = 0.0;
+          Rect firstTape = rects.get(1);
+          Rect secondTape = rects.get(0);
+          int leftTargetX = firstTape.x + (firstTape.width / 2);
+          int rightTargetX = secondTape.x + (secondTape.width / 2);
+          int widthTarget = rightTargetX - leftTargetX;
+          Double PixelsFromRobotCenter = (FTFromRobotCenter * (widthTarget/11.0)); //maybe actually do the math on this one, Frankie
+          leftTargetX -= PixelsFromRobotCenter;
+          rightTargetX -= PixelsFromRobotCenter;
+          // the idea here is to account for the camera offset by simply changing the x-coordinates of the left and right targets
+          //so that they represent the coordinates that would be found if the center of the robot was the center of the camera frame
+          // the pixel distance is SUBTRACTED because the coordinates go left to right and the camera offset is to the left,
+          // which would make the target appear farther right than it is. so in order to have the target in the right place, 
+          // it must be moved to the left.
+          int centerTarget = leftTargetX + (widthTarget / 2);
+          double distanceToRobotFT = (11.0 * ((88.0 * 43.0) / 11.0)) / widthTarget;
+          double distanceToCenterFT = ((320/2) - centerTarget ) * (11/widthTarget);
+          // we are making a right triangle with the robot, the target, and the center of the camera frame. 
+          // angle is found by dividing distance between target and center of camera frame by distance between 
+          // robot and center of camera frame, then taking the inverse tan to find the angle. 
+          // absolute value is taken because we're making a right triangle and triangles need positive side values.
           
-          // Rect firstTape = rects.get(smallest);
-          // Rect secondTape = rects.get(smallest + 1);
-          // int widthTarget = (firstTape.x + (firstTape.width / 2)) + (secondTape.x + (secondTape.width / 2)) / 2;
-          // int centerTarget = (firstTape.x + (firstTape.width / 2)) + (widthTarget / 2);
+          double angle = Math.atan(Math.abs((distanceToCenterFT/distanceToRobotFT)));
+>>>>>>> d2893c73ad730c6d41f694efbd67dba0493c07b1
+          
           // String difference = "";
           // for (int i : differences) {
           // difference += i + ", ";
@@ -310,31 +350,33 @@ public final class Main {
           // rectsWidths += rect.width + ", ";
           // }
           synchronized (visionlock) {
-            // System.out.print("Rects: ");
-            // System.out.println(rectsWidths);
-            // System.out.print("Differences");
-            // System.out.println(difference);
-            //System.out.println(widthTarget + "px");
-            System.out.println(rects.size());
-            System.out.println(targets.size());
-            outputStream.putFrame(pipeline.hsvThresholdOutput());
-            //centerX.setDouble(centerTarget);
+            // System.out.println("Next frame //////////");
+            // System.out.println(widthTarget + "width px");
+            // System.out.println(centerTarget + "center px");
+            System.out.println(distanceToRobotFT + " distance between center and robot");
+            System.out.println(distanceToCenterFT + " distance between target and center");
+            System.out.println(angle + "angle between robot and target");
+            
+            // outputStream.putFrame(pipeline.hsvThresholdOutput());
+            // centerX.setDouble(centerTarget);
+            // leftTarget.setDouble(leftTargetX);
+            // rightTarget.setDouble(rightTargetX);
+            // distanceTarget.setDouble(distanceFT);
+            // System.out.println(leftTarget.getDouble(0) + "left x");
+            // System.out.println(rightTarget.getDouble(0) + "right x");
+            System.out.println("I have at least one camera.");
           }
         } else {
           synchronized (visionlock) {
-            System.out.println("there were less then 2 contours");
-            outputStream.putFrame(pipeline.hsvThresholdOutput());
-            centerX.setDouble(width / 2);
+            System.out.println("I have at least one camera.");
+            // outputStream.putFrame(pipeline.hsvThresholdOutput());
+            // centerX.setDouble(width / 2);
           }
         }
       });
       visionThread.start();
     }
 
-    Thread t = new Thread(() -> {
-    });
-    t.start();
-    // loop forever
     for (;;) {
       try {
         Thread.sleep(10000);
@@ -342,5 +384,7 @@ public final class Main {
         return;
       }
     }
-  }
+
+  
+}
 }
