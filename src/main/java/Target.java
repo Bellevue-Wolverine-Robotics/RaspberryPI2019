@@ -1,9 +1,8 @@
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.Point;
-import org.opencv.core.Rect;
 
 public class Target {
-    public enum Side{LEFT, RIGHT, UNKOWN;}
+    public enum Side{LEFT, RIGHT, UNKNOWN;}
     private Point minX;
     private Point maxX;
     private Point minY;
@@ -43,11 +42,11 @@ public class Target {
         else if(minX.y < maxX.y) {
             side = Side.LEFT;
         } else {
-            side = Side.UNKOWN;
+            side = Side.UNKNOWN;
         }
     }
     public String toString(){
-        return "Target: "+side.toString();
+        return "Target: " + side.toString();
     }
     public Side getSide(){
         return this.side;

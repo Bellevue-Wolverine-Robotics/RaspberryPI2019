@@ -242,29 +242,18 @@ public final class Main {
       cameras.add(startCamera(cameraConfig));
     }
     int width = 320;
+    int centerX = width / 2;
     int height = 240;
 
     cameras.get(0).setResolution(width, height);
 
     CvSource outputStream = CameraServer.getInstance().putVideo("HSV Binary", width, height);
 
-    /*
-     * TODO
-     * 
-     * 2) filter targets (just steal nrg's code) 3) create trajectory by joystick
-     * button click, then send trajectory back with network tables
-     */
-
-    // start image processing on camera 0 if present
-
     System.out.println("Number of cameras: " + cameras.size());
 
     if (cameras.size() >= 1) {
-      // Thread t = new Thread(() -> {
-
-      //   // loop forever
-      // });
-      // t.start();
+      //FocalLength = (PixelWidth x DistanceInches) / WidthInches
+      //(FocalLength * WidthInches) / PixelWidth = DistanceInches
       VisionThread visionThread = new VisionThread(cameras.get(0), new GreenReflectiveTape(), pipeline -> {
         if (pipeline.filterContoursOutput().size() > 1) {
           ArrayList<Target> targets = new ArrayList<Target>();
@@ -275,8 +264,8 @@ public final class Main {
           targets.sort(new Comparator<Target>() {
 
             @Override
-            public int compare(Target o1, Target o2) {
-              return (int) (o2.getMinX().x - o1.getMinX().x);
+            public int compare(Target target1, Target target2) {
+              return (int) (target2.getMinX().x - target1.getMinX().x);
             }
           });
 
@@ -295,26 +284,35 @@ public final class Main {
             }
           }
 
+          int bestTargetLocation = 0;
+          int bestDistance = centerX;
+          if (targets.size() > 1) {
+            for (int i = 0; i < targets.size() - 1; i++) {
+              if (targets.get(i).getSide() == Target.Side.LEFT) {
+                if (targets.get(i + 1).getSide() == Target.Side.RIGHT) {
+                  int currentDistance = Math.abs((targets.get(i).getCenterTargetX() + targets.get(i + 1).getCenterTargetX()) / 2 - centerX);
+                  if (currentDistance < bestDistance) {
+                    bestTargetLocation = i;
+                    bestDistance = currentDistance;
+                  } 
+                }
+              }
+            }
+          }
+
           targetPairs.sort(new Comparator<TargetPair>() {
             public int compare(TargetPair o1, TargetPair o2) {
               return (Math.abs(o2.getCenterTargetPair() - (width / 2))) - (Math.abs(o1.getCenterTargetPair() - (width / 2)));
             }
           });
 
-          double distance = (11.0 * ((88.0 * 43.0) / 11.0)) / targetPairs.get(0).getWidth();
+          double distance = (88.0 * 43.0) / targetPairs.get(0).getWidth();
+          int centerPixelX = (targets.get(bestTargetLocation).getCenterTargetX() + targets.get(bestTargetLocation + 1).getCenterTargetX()) / 2;
 
           synchronized (visionlock) {
-            // System.out.println("Next frame //////////");
-            // System.out.println(widthTarget + "width px");
-            // System.out.println(centerTarget + "center px");
-
             // outputStream.putFrame(pipeline.hsvThresholdOutput());
-            centerTargetX.setDouble(targetPairs.get(0).getCenterTargetPair());
-            // leftTarget.setDouble(leftTargetX);
-            // rightTarget.setDouble(rightTargetX);
+            centerTargetX.setDouble(centerPixelX);
             distanceTargetIn.setDouble(distance);
-            // System.out.println(leftTarget.getDouble(0) + "left x");
-            // System.out.println(rightTarget.getDouble(0) + "right x");
           }
         } else {
           synchronized (visionlock) {
@@ -333,6 +331,5 @@ public final class Main {
         return;
       }
     }
-
   }
 }
