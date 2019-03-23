@@ -269,21 +269,6 @@ public final class Main {
             }
           });
 
-          ArrayList<TargetPair> targetPairs = new ArrayList<TargetPair>();
-          if (targets.size() >= 2) {
-            for (int i = 0; i < targets.size() - 1; i++) {
-              Target current = targets.get(i);
-              if (current.getSide() == Target.Side.LEFT) {
-                Target nextTarget = targets.get(i + 1);
-                if (nextTarget.getSide() == Target.Side.RIGHT) {
-                  TargetPair targetPair = new TargetPair(current, nextTarget);
-                  targetPairs.add(targetPair);
-                  i++;
-                }
-              }
-            }
-          }
-
           int bestTargetLocation = 0;
           int bestDistance = centerX;
           if (targets.size() > 1) {
@@ -299,19 +284,17 @@ public final class Main {
               }
             }
           }
-
-          targetPairs.sort(new Comparator<TargetPair>() {
-            public int compare(TargetPair o1, TargetPair o2) {
-              return (Math.abs(o2.getCenterTargetPair() - (width / 2))) - (Math.abs(o1.getCenterTargetPair() - (width / 2)));
-            }
-          });
-
-          double distance = (88.0 * 43.0) / targetPairs.get(0).getWidth();
-          int centerPixelX = (targets.get(bestTargetLocation).getCenterTargetX() + targets.get(bestTargetLocation + 1).getCenterTargetX()) / 2;
+          
+          int leftPixelX = targets.get(bestTargetLocation).getCenterTargetX();
+          int rightPixelX = targets.get(bestTargetLocation + 1).getCenterTargetX();
+          double distance = (88.0 * 43.0) / (rightPixelX - leftPixelX);
+          int centerPixelX = (leftPixelX + rightPixelX) / 2;
 
           synchronized (visionlock) {
             // outputStream.putFrame(pipeline.hsvThresholdOutput());
             centerTargetX.setDouble(centerPixelX);
+            leftTargetX.setDouble(leftPixelX);
+            rightTargetX.setDouble(rightPixelX);
             distanceTargetIn.setDouble(distance);
           }
         } else {
