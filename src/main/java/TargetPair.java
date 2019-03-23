@@ -1,6 +1,3 @@
-import org.opencv.core.MatOfPoint;
-import org.opencv.core.Point;
-
 public class TargetPair {
 
     private Target leftTarget;
@@ -9,5 +6,13 @@ public class TargetPair {
     public TargetPair(Target leftTarget, Target rightTarget) {
         this.leftTarget = leftTarget;
         this.rightTarget = rightTarget;
+    }
+
+    public int getCenterTargetPair() {
+        return (leftTarget.getCenterTargetX() + rightTarget.getCenterTargetX())  / 2;
+    }
+
+    public int getWidth() {
+        return rightTarget.getCenterTargetX() - leftTarget.getCenterTargetX();
     }
 }

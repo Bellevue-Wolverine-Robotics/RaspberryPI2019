@@ -55,4 +55,8 @@ public class Target {
     public Point getMinX(){
         return this.minX;
     }
+
+    public int getCenterTargetX() {
+        return (int) ((minX.x + maxX.x) / 2);
+    }
 }

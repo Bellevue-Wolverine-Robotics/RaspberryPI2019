@@ -276,7 +276,7 @@ public final class Main {
 
             @Override
             public int compare(Target o1, Target o2) {
-              return o2.getMinX() - o1.getMinX();
+              return (int) (o2.getMinX().x - o1.getMinX().x);
             }
           });
 
@@ -295,39 +295,19 @@ public final class Main {
             }
           }
 
-        //   rects.sort(new Comparator<Rect>() {
+          targetPairs.sort(new Comparator<TargetPair>() {
+            public int compare(TargetPair o1, TargetPair o2) {
+              return (Math.abs(o2.getCenterTargetPair() - (width / 2))) - (Math.abs(o1.getCenterTargetPair() - (width / 2)));
+            }
+          });
 
-        //   @Override
-        //   public int compare(Rect o1, Rect o2) {
-        //   return (int) (o2.width - o1.width);
-        //   }
-        // }
-
-          // });
-          // ArrayList<Rect> targets = new ArrayList<Rect>();
-          // for (int i = 0; i < rects.size(); i++){
-          // if (areas.get(i)/rects.get(i).area() > 0.5 &&
-          // areas.get(i)/rects.get(i).area() < 0.75){
-          // targets.add(rects.get(i));
-          // }
-          // }
-
-          // });
-          // String difference = "";
-          // for (int i : differences) {
-          // difference += i + ", ";
-          // }
-          // String rectsWidths = "";
-          // for (Rect rect : rects) {
-          // rectsWidths += rect.width + ", ";
-          // }
           synchronized (visionlock) {
             // System.out.println("Next frame //////////");
             // System.out.println(widthTarget + "width px");
             // System.out.println(centerTarget + "center px");
 
             // outputStream.putFrame(pipeline.hsvThresholdOutput());
-            // centerX.setDouble(centerTarget);
+            centerTargetX.setDouble(targetPairs.get(0).getCenterTargetPair());
             // leftTarget.setDouble(leftTargetX);
             // rightTarget.setDouble(rightTargetX);
             // distanceTarget.setDouble(distanceFT);
