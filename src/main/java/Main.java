@@ -260,11 +260,11 @@ public final class Main {
     System.out.println("Number of cameras: " + cameras.size());
 
     if (cameras.size() >= 1) {
-      Thread t = new Thread(() -> {
+      // Thread t = new Thread(() -> {
 
-        // loop forever
-      });
-      t.start();
+      //   // loop forever
+      // });
+      // t.start();
       VisionThread visionThread = new VisionThread(cameras.get(0), new GreenReflectiveTape(), pipeline -> {
         if (pipeline.filterContoursOutput().size() > 1) {
           ArrayList<Target> targets = new ArrayList<Target>();
@@ -276,9 +276,10 @@ public final class Main {
 
             @Override
             public int compare(Target o1, Target o2) {
-              return o2.getMinX - o1.getMinX;
+              return o2.getMinX() - o1.getMinX();
             }
-          }
+          });
+
           ArrayList<TargetPair> targetPairs = new ArrayList<TargetPair>();
           if (targets.size() >= 2) {
             for (int i = 0; i < targets.size() - 1; ++i) {
@@ -294,12 +295,13 @@ public final class Main {
             }
           }
 
-          // rects.sort(new Comparator<Rect>() {
+        //   rects.sort(new Comparator<Rect>() {
 
-          // @Override
-          // public int compare(Rect o1, Rect o2) {
-          // return (int) (o2.width - o1.width);
-          // }
+        //   @Override
+        //   public int compare(Rect o1, Rect o2) {
+        //   return (int) (o2.width - o1.width);
+        //   }
+        // }
 
           // });
           // ArrayList<Rect> targets = new ArrayList<Rect>();
