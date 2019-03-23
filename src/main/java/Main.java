@@ -228,7 +228,7 @@ public final class Main {
       ntinst.startClientTeam(team);
     }
 
-    NetworkTable nTable = ntinst.getTable("TestTable");
+    NetworkTable nTable = ntinst.getTable("VisionTable");
 
     NetworkTableEntry centerTargetX = nTable.getEntry("centerTargetX");
     NetworkTableEntry leftTargetX = nTable.getEntry("leftTargetX");
