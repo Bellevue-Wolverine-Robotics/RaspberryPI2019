@@ -1,5 +1,6 @@
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.Point;
+import org.opencv.core.Rect;
 
 public class Target {
     public enum Side{LEFT, RIGHT, UNKOWN;}

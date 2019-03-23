@@ -230,12 +230,10 @@ public final class Main {
 
     NetworkTable nTable = ntinst.getTable("TestTable");
 
-    NetworkTableEntry centerX = nTable.getEntry("centerX");
-    NetworkTableEntry leftTarget = nTable.getEntry("leftTarget");
-    NetworkTableEntry rightTarget = nTable.getEntry("rightTarget");
-    NetworkTableEntry distanceTarget = nTable.getEntry("distanceTarget");
-
-    centerX.setDouble(42);
+    NetworkTableEntry centerTargetX = nTable.getEntry("centerTargetX");
+    NetworkTableEntry leftTargetX = nTable.getEntry("leftTargetX");
+    NetworkTableEntry rightTargetX = nTable.getEntry("rightTargetX");
+    NetworkTableEntry distanceTargetIn = nTable.getEntry("distanceTargetIn");
 
     System.out.println(cameraConfigs.get(0).config);
     // start cameras
@@ -269,15 +267,18 @@ public final class Main {
       t.start();
       VisionThread visionThread = new VisionThread(cameras.get(0), new GreenReflectiveTape(), pipeline -> {
         if (pipeline.filterContoursOutput().size() > 1) {
-          ArrayList<Rect> rects = new ArrayList<Rect>();
-          ArrayList<Double> areas = new ArrayList<Double>();
           ArrayList<Target> targets = new ArrayList<Target>();
           for (MatOfPoint contour : pipeline.filterContoursOutput()) {
-            rects.add(Imgproc.boundingRect(contour));
-            areas.add(Imgproc.contourArea(contour));
             targets.add(new Target(contour));
           }
 
+          targets.sort(new Comparator<Target>() {
+
+            @Override
+            public int compare(Target o1, Target o2) {
+              return o2.getMinX - o1.getMinX;
+            }
+          }
           ArrayList<TargetPair> targetPairs = new ArrayList<TargetPair>();
           if (targets.size() >= 2) {
             for (int i = 0; i < targets.size() - 1; ++i) {
@@ -308,48 +309,8 @@ public final class Main {
           // targets.add(rects.get(i));
           // }
           // }
-          rects.sort(new Comparator<Rect>() {
 
-            @Override
-            public int compare(Rect o1, Rect o2) {
-              return (int) (o2.x - o1.x);
-            }
-
-          });
-
-          Double FTFromRobotCenter = 0.0;
-          Rect firstTape = rects.get(1);
-          Rect secondTape = rects.get(0);
-          int leftTargetX = firstTape.x + (firstTape.width / 2);
-          int rightTargetX = secondTape.x + (secondTape.width / 2);
-          int widthTarget = rightTargetX - leftTargetX;
-          Double PixelsFromRobotCenter = (FTFromRobotCenter * (widthTarget / 11.0)); // maybe actually do the math on
-                                                                                     // this one, Frankie
-          leftTargetX -= PixelsFromRobotCenter;
-          rightTargetX -= PixelsFromRobotCenter;
-          // the idea here is to account for the camera offset by simply changing the
-          // x-coordinates of the left and right targets
-          // so that they represent the coordinates that would be found if the center of
-          // the robot was the center of the camera frame
-          // the pixel distance is SUBTRACTED because the coordinates go left to right and
-          // the camera offset is to the left,
-          // which would make the target appear farther right than it is. so in order to
-          // have the target in the right place,
-          // it must be moved to the left.
-          int centerTarget = leftTargetX + (widthTarget / 2);
-          double distanceToRobotFT = (11.0 * ((88.0 * 43.0) / 11.0)) / widthTarget;
-          double distanceToCenterFT = ((320 / 2) - centerTarget) * (11 / widthTarget);
-          // we are making a right triangle with the robot, the target, and the center of
-          // the camera frame.
-          // angle is found by dividing distance between target and center of camera frame
-          // by distance between
-          // robot and center of camera frame, then taking the inverse tan to find the
-          // angle.
-          // absolute value is taken because we're making a right triangle and triangles
-          // need positive side values.
-
-          double angle = Math.atan(Math.abs((distanceToCenterFT / distanceToRobotFT)));
-
+          // });
           // String difference = "";
           // for (int i : differences) {
           // difference += i + ", ";
@@ -362,9 +323,6 @@ public final class Main {
             // System.out.println("Next frame //////////");
             // System.out.println(widthTarget + "width px");
             // System.out.println(centerTarget + "center px");
-            System.out.println(distanceToRobotFT + " distance between center and robot");
-            System.out.println(distanceToCenterFT + " distance between target and center");
-            System.out.println(angle + "angle between robot and target");
 
             // outputStream.putFrame(pipeline.hsvThresholdOutput());
             // centerX.setDouble(centerTarget);
@@ -373,13 +331,11 @@ public final class Main {
             // distanceTarget.setDouble(distanceFT);
             // System.out.println(leftTarget.getDouble(0) + "left x");
             // System.out.println(rightTarget.getDouble(0) + "right x");
-            System.out.println("I have at least one camera.");
           }
         } else {
           synchronized (visionlock) {
-            System.out.println("I have at least one camera.");
-            // outputStream.putFrame(pipeline.hsvThresholdOutput());
-            // centerX.setDouble(width / 2);
+            outputStream.putFrame(pipeline.hsvThresholdOutput());
+            centerTargetX.setDouble(width / 2);
           }
         }
       });
