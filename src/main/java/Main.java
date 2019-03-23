@@ -282,14 +282,14 @@ public final class Main {
 
           ArrayList<TargetPair> targetPairs = new ArrayList<TargetPair>();
           if (targets.size() >= 2) {
-            for (int i = 0; i < targets.size() - 1; ++i) {
+            for (int i = 0; i < targets.size() - 1; i++) {
               Target current = targets.get(i);
               if (current.getSide() == Target.Side.LEFT) {
                 Target nextTarget = targets.get(i + 1);
                 if (nextTarget.getSide() == Target.Side.RIGHT) {
                   TargetPair targetPair = new TargetPair(current, nextTarget);
                   targetPairs.add(targetPair);
-                  ++i;
+                  i++;
                 }
               }
             }
@@ -301,6 +301,8 @@ public final class Main {
             }
           });
 
+          double distance = (11.0 * ((88.0 * 43.0) / 11.0)) / targetPairs.get(0).getWidth();
+
           synchronized (visionlock) {
             // System.out.println("Next frame //////////");
             // System.out.println(widthTarget + "width px");
@@ -310,7 +312,7 @@ public final class Main {
             centerTargetX.setDouble(targetPairs.get(0).getCenterTargetPair());
             // leftTarget.setDouble(leftTargetX);
             // rightTarget.setDouble(rightTargetX);
-            // distanceTarget.setDouble(distanceFT);
+            distanceTargetIn.setDouble(distance);
             // System.out.println(leftTarget.getDouble(0) + "left x");
             // System.out.println(rightTarget.getDouble(0) + "right x");
           }

@@ -12,7 +12,7 @@ public class TargetPair {
         return (leftTarget.getCenterTargetX() + rightTarget.getCenterTargetX())  / 2;
     }
 
-    public int getWidth() {
+    public double getWidth() {
         return rightTarget.getCenterTargetX() - leftTarget.getCenterTargetX();
     }
 }
